@@ -1,0 +1,7 @@
+.image-gallery {
+  height: 800px;
+  width: 50%;
+  margin: 100px auto;
+  display: flex;
+  flex-direction: row;
+}
