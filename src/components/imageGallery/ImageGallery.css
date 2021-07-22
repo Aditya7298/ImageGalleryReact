@@ -4,4 +4,12 @@
   margin: 100px auto;
   display: flex;
   flex-direction: row;
+  justify-content: center;
+}
+
+.image-gallery-loading {
+  height: 200px;
+  width: 200px;
+  background-color: transparent;
+  align-self: center;
 }

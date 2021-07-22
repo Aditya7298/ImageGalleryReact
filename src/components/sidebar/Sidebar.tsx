@@ -17,19 +17,28 @@ interface ClosestPanelInfo {
 
 export class Sidebar extends React.Component<SidebarProps> {
   componentDidMount() {
-    document.addEventListener("keydown", (evt) => {
-      if (evt.key === "Enter" && document.activeElement) {
-        const activeElement = document.activeElement;
-        const sidebarPanelId = activeElement.getAttribute(
-          "data-sidebar-panel-id"
-        );
-
-        if (sidebarPanelId) {
-          this.props.onSelectedImageIdChange(sidebarPanelId);
-        }
-      }
-    });
+    document.addEventListener("keydown", this.handlePanelSelectionFromKeyboard);
   }
+
+  componentWillUnmount() {
+    document.removeEventListener(
+      "keydown",
+      this.handlePanelSelectionFromKeyboard
+    );
+  }
+
+  handlePanelSelectionFromKeyboard = (evt: KeyboardEvent) => {
+    if (evt.key === "Enter" && document.activeElement) {
+      const activeElement = document.activeElement;
+      const sidebarPanelId = activeElement.getAttribute(
+        "data-sidebar-panel-id"
+      );
+
+      if (sidebarPanelId) {
+        this.props.onSelectedImageIdChange(sidebarPanelId);
+      }
+    }
+  };
 
   findClosestPanelBelow = (
     yPos: number,
@@ -52,32 +61,33 @@ export class Sidebar extends React.Component<SidebarProps> {
   };
 
   handleDragOver = (evt: React.DragEvent<HTMLDivElement>) => {
-    console.log("Drag Over");
     const draggingSidebarPanel = document.querySelector(
       '[data-sidebar-panel-dragging="true"]'
     ) as HTMLDivElement;
-    if (draggingSidebarPanel) {
-      const sidebarPanels = document.querySelectorAll(
-        "[data-sidebar-panel-id]"
-      ) as NodeListOf<HTMLDivElement>;
+    const sidebarPanels = document.querySelectorAll(
+      "[data-sidebar-panel-id]"
+    ) as NodeListOf<HTMLDivElement>;
 
-      const { closestPanelBelow } = this.findClosestPanelBelow(
-        evt.clientY,
-        sidebarPanels
+    const { closestPanelBelow } = this.findClosestPanelBelow(
+      evt.clientY,
+      sidebarPanels
+    );
+
+    if (
+      draggingSidebarPanel &&
+      closestPanelBelow &&
+      closestPanelBelow !== draggingSidebarPanel
+    ) {
+      const draggingSidebarPanelId =
+        draggingSidebarPanel.dataset.sidebarPanelId;
+      const closestPanelBelowIndex = this.props.images.findIndex(
+        (image) => image.id === closestPanelBelow.dataset.sidebarPanelId
       );
-
-      if (closestPanelBelow && closestPanelBelow !== draggingSidebarPanel) {
-        const draggingSidebarPanelId =
-          draggingSidebarPanel.dataset.sidebarPanelId;
-        const closestPanelBelowIndex = this.props.images.findIndex(
-          (image) => image.id === closestPanelBelow.dataset.sidebarPanelId
+      if (draggingSidebarPanelId) {
+        this.props.onImageOrderChange(
+          draggingSidebarPanelId,
+          closestPanelBelowIndex
         );
-        if (draggingSidebarPanelId) {
-          this.props.onImageOrderChange(
-            draggingSidebarPanelId,
-            closestPanelBelowIndex
-          );
-        }
       }
     }
   };

@@ -3,6 +3,7 @@ import { Sidebar } from "../sidebar/Sidebar";
 import { DisplayContainer } from "../displayContainer/DisplayContainer";
 import { Model } from "../../model";
 import { ImageInfo } from "../../ts/interfaces/ImageInfo.interface";
+import loadinganimation from "../../../src/assets/loading-animation.svg";
 import "./ImageGallery.css";
 
 interface ImageGalleryProps {
@@ -78,6 +79,13 @@ export class ImageGallery extends React.Component<
 
     return (
       <div className="image-gallery">
+        {this.state.images.length === 0 && (
+          <img
+            className="image-gallery-loading"
+            src={loadinganimation}
+            alt="loading"
+          />
+        )}
         {this.state.images.length > 0 && (
           <Sidebar
             images={this.state.images}
