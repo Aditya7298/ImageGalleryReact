@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import { SidebarPanel } from "../sidebarPanel/SidebarPanel";
 import { ImageInfo } from "../../ts/interfaces/ImageInfo.interface";
 import { eventDeboune } from "../../utils";
@@ -42,10 +42,10 @@ export const Sidebar = ({
     };
   }, [onSelectedImageIdChange]);
 
-  const findClosestPanelBelow: (
+  const findClosestPanelBelow = (
     yPos: number,
     sidebarPanels: NodeListOf<HTMLDivElement>
-  ) => ClosestPanelInfo = useCallback((yPos, sidebarPanels) => {
+  ): ClosestPanelInfo => {
     return Array.from(sidebarPanels).reduce(
       (closest, sidebarPanel) => {
         const boundingBox = sidebarPanel.getClientRects()[0],
@@ -60,7 +60,7 @@ export const Sidebar = ({
         offset: Number.NEGATIVE_INFINITY,
       } as ClosestPanelInfo
     );
-  }, []);
+  };
 
   const handleDragOver = (evt: React.DragEvent<HTMLDivElement>) => {
     const draggingSidebarPanel = document.querySelector(

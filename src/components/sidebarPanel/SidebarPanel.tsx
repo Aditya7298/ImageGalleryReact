@@ -18,15 +18,9 @@ export const SidebarPanel = ({
 
   useEffect(() => {
     if (captionRef.current) {
-      truncateCaption();
-    }
-  });
-
-  const truncateCaption = () => {
-    if (captionRef.current) {
       truncateInnerText(captionRef.current, image.caption, 2, "100%");
     }
-  };
+  });
 
   const handleDragStart = (evt: React.DragEvent<HTMLDivElement>) => {
     const sidebarElement = evt.target as HTMLDivElement;
