@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useCallback } from "react";
 import { SidebarPanel } from "../sidebarPanel/SidebarPanel";
 import { ImageInfo } from "../../ts/interfaces/ImageInfo.interface";
 import { eventDeboune } from "../../utils";
@@ -15,9 +15,14 @@ interface ClosestPanelInfo {
   offset: number;
 }
 
-export class Sidebar extends React.Component<SidebarProps> {
-  componentDidMount() {
-    document.addEventListener("keydown", (evt) => {
+export const Sidebar = ({
+  images,
+  selectedImageId,
+  onSelectedImageIdChange,
+  onImageOrderChange,
+}: SidebarProps) => {
+  useEffect(() => {
+    const selectImageFromKeyboard = (evt: KeyboardEvent) => {
       if (evt.key === "Enter" && document.activeElement) {
         const activeElement = document.activeElement;
         const sidebarPanelId = activeElement.getAttribute(
@@ -25,16 +30,22 @@ export class Sidebar extends React.Component<SidebarProps> {
         );
 
         if (sidebarPanelId) {
-          this.props.onSelectedImageIdChange(sidebarPanelId);
+          onSelectedImageIdChange(sidebarPanelId);
         }
       }
-    });
-  }
+    };
 
-  findClosestPanelBelow = (
+    document.addEventListener("keydown", selectImageFromKeyboard);
+
+    return () => {
+      document.removeEventListener("keydown", selectImageFromKeyboard);
+    };
+  }, [onSelectedImageIdChange]);
+
+  const findClosestPanelBelow: (
     yPos: number,
     sidebarPanels: NodeListOf<HTMLDivElement>
-  ): ClosestPanelInfo => {
+  ) => ClosestPanelInfo = useCallback((yPos, sidebarPanels) => {
     return Array.from(sidebarPanels).reduce(
       (closest, sidebarPanel) => {
         const boundingBox = sidebarPanel.getClientRects()[0],
@@ -49,10 +60,9 @@ export class Sidebar extends React.Component<SidebarProps> {
         offset: Number.NEGATIVE_INFINITY,
       } as ClosestPanelInfo
     );
-  };
+  }, []);
 
-  handleDragOver = (evt: React.DragEvent<HTMLDivElement>) => {
-    console.log("Drag Over");
+  const handleDragOver = (evt: React.DragEvent<HTMLDivElement>) => {
     const draggingSidebarPanel = document.querySelector(
       '[data-sidebar-panel-dragging="true"]'
     ) as HTMLDivElement;
@@ -61,7 +71,7 @@ export class Sidebar extends React.Component<SidebarProps> {
         "[data-sidebar-panel-id]"
       ) as NodeListOf<HTMLDivElement>;
 
-      const { closestPanelBelow } = this.findClosestPanelBelow(
+      const { closestPanelBelow } = findClosestPanelBelow(
         evt.clientY,
         sidebarPanels
       );
@@ -69,39 +79,32 @@ export class Sidebar extends React.Component<SidebarProps> {
       if (closestPanelBelow && closestPanelBelow !== draggingSidebarPanel) {
         const draggingSidebarPanelId =
           draggingSidebarPanel.dataset.sidebarPanelId;
-        const closestPanelBelowIndex = this.props.images.findIndex(
+        const closestPanelBelowIndex = images.findIndex(
           (image) => image.id === closestPanelBelow.dataset.sidebarPanelId
         );
         if (draggingSidebarPanelId) {
-          this.props.onImageOrderChange(
-            draggingSidebarPanelId,
-            closestPanelBelowIndex
-          );
+          onImageOrderChange(draggingSidebarPanelId, closestPanelBelowIndex);
         }
       }
     }
   };
 
-  render() {
-    const { images, selectedImageId } = this.props;
-
-    return (
-      <div
-        onDragOver={(evt) => {
-          eventDeboune(this.handleDragOver)(evt);
-        }}
-        className="sidebar"
-      >
-        {images &&
-          images.map((image) => (
-            <SidebarPanel
-              key={image.id}
-              image={image}
-              onSelectedImageIdChange={this.props.onSelectedImageIdChange}
-              isSelected={selectedImageId === image.id}
-            />
-          ))}
-      </div>
-    );
-  }
-}
+  return (
+    <div
+      onDragOver={(evt) => {
+        eventDeboune(handleDragOver)(evt);
+      }}
+      className="sidebar"
+    >
+      {images &&
+        images.map((image) => (
+          <SidebarPanel
+            key={image.id}
+            image={image}
+            onSelectedImageIdChange={onSelectedImageIdChange}
+            isSelected={selectedImageId === image.id}
+          />
+        ))}
+    </div>
+  );
+};
