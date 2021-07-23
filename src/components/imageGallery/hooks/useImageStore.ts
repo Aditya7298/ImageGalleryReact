@@ -20,7 +20,7 @@ export const useImageStore = (
     initialSelectedImageId
   );
 
-  const [imageOrder, setImageOrder] = useState(
+  const [imageOrder, setImageOrder] = useState(() =>
     initialImageStore.map((imageInfo) => imageInfo.id)
   );
 

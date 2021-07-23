@@ -10,13 +10,17 @@
 }
 
 .sidebar-panel-selected {
-  background: cornflowerblue;
+  background-color: cornflowerblue;
   color: white;
   border-radius: 5px;
 }
 
 .sidebar-panel-dragging {
   opacity: 0.4;
+  background-color: rgb(210, 224, 249);
+  color: black;
+  border: 0.5px solid black;
+  border-radius: 5px;
 }
 
 .sidebar-panel_image {
